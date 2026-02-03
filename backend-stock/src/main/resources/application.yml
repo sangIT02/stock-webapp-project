@@ -3,8 +3,8 @@
 spring:
   datasource:
     username: root
-    password: 110104
-    url: jdbc:mysql://localhost:3306/stock_trading_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/stock_trading_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -37,8 +37,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: sang1000000k@gmail.com  # <--- Thay email của bạn vào đây
-    password: nfcf duli geae vwsm
+    username: ${MAIL_USERNAME}  # <--- Thay email của bạn vào đây
+    password: ${MAIL_PASSWORD}
     # <--- Paste 16 ký tự App Password vào đây (KHÔNG phải pass đăng nhập)
     properties:
       mail:
@@ -57,6 +57,6 @@ api:
   prefix: /api
 
 jwt:
-  secret-key: 5259621cc4637d4720637e19f513cd29a8db1da1088cad3ba135d6ab95971b91
-  expiration: 86400000
+  secret-key: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRED}
 
