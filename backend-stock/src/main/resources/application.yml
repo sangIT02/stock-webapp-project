@@ -1,0 +1,62 @@
+
+
+spring:
+  datasource:
+    username: root
+    password: 110104
+    url: jdbc:mysql://localhost:3306/stock_trading_db?useSSL=false&serverTimezone=Asia/Ho_Chi_Minh
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60000
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 1
+
+    consumer:
+      group-id: stock-trading-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sang1000000k@gmail.com  # <--- Thay email của bạn vào đây
+    password: nfcf duli geae vwsm
+    # <--- Paste 16 ký tự App Password vào đây (KHÔNG phải pass đăng nhập)
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          # Thêm dòng này để timeout nếu mạng lag
+          connectiontimeout: 5000
+          timeout: 3000
+          writetimeout: 5000
+server:
+  port: 8080
+
+api:
+  prefix: /api
+
+jwt:
+  secret-key: 5259621cc4637d4720637e19f513cd29a8db1da1088cad3ba135d6ab95971b91
+  expiration: 86400000
+
