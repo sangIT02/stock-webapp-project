@@ -9,6 +9,7 @@ import {
     CandlestickSeries,
     type CandlestickData
 } from 'lightweight-charts';
+import { OrderForm } from '../components/OrderForm';
 
 // --- CẤU HÌNH ---
 const BROKER_HOST = 'datafeed-lts-krx.dnse.com.vn';
@@ -44,20 +45,20 @@ const DNSEChart: React.FC = () => {
         if (!chartContainerRef.current) return;
 
         const chart = createChart(chartContainerRef.current, {
-            layout: { background: { type: ColorType.Solid, color: '#ffffff' }, textColor: '#333' },
+            layout: { background: { type: ColorType.Solid, color: '#121212' }, textColor: '#D9D9D9' },
             width: 1000, //chartContainerRef.current.clientWidth,
             height: 600,
             timeScale: {
                 timeVisible: true,
                 secondsVisible: false,
-                borderColor: '#D1D4DC',
+                borderColor: '#2B2B43',
             },
             rightPriceScale: {
-                borderColor: '#D1D4DC',
+                borderColor: '#2B2B43',
             },
             grid: {
-                vertLines: { color: '#F0F3FA' },
-                horzLines: { color: '#F0F3FA' },
+                vertLines: { color: '#242424' }, // Màu lưới dọc (Rất mờ)
+                horzLines: { color: '#242424' }, // Màu lưới ngang
             },
         });
 
@@ -195,41 +196,59 @@ const DNSEChart: React.FC = () => {
     }, []);
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#f5f5f5', padding: '20px' }}>
+        <div style={{
+            minHeight: '100vh',
+            backgroundColor: '#121212', // Màu nền tối cho toàn trang
+            color: '#fff',
+            display: 'flex',            // Sử dụng Flexbox
+            flexDirection: 'column'
+        }}>
 
-            <h1 style={{ textAlign: 'center', color: '#333' }}>
-                Demo Kết Nối DNSE MQTT
-            </h1>
+            {/* Header nhỏ hiển thị trạng thái */}
+            <div style={{ padding: '10px 20px', borderBottom: '1px solid #333' }}>
+                
+            </div>
 
-            {/* 2. Gọi Component ra để hiển thị */}
-            <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-                <h2 style={{ margin: '0 0 10px 0' }}>Biểu đồ DNSE: {SYMBOL_ID} ({RESOLUTION})</h2>
+            {/* CONTAINER CHÍNH: Chia 2 cột */}
+            <div style={{
+                display: 'flex',
+                flex: 1, // Chiếm hết chiều cao còn lại
+                width: '100%',
+                padding: '10px',
+                gap: '10px' // Khoảng cách giữa 2 cột
+            }}>
 
+                {/* --- CỘT TRÁI: BIỂU ĐỒ (Chiếm 75% ~ 9 Cols) --- */}
                 <div style={{
-                    display: 'flex', gap: '20px', marginBottom: '15px',
-                    padding: '10px', background: '#f5f5f5', borderRadius: '5px'
+                    flex: '0 0 75%', // Cố định 75% chiều rộng
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}>
-                    <div>Trạng thái: <strong>{status}</strong></div>
-                    {lastPrice && <div>Giá: <strong style={{ color: '#089981', fontSize: '1.1em' }}>{lastPrice.toLocaleString()}</strong></div>}
+                    <div
+                        ref={chartContainerRef}
+                        style={{
+                            flex: 1, // Chart chiếm hết chiều cao của cột trái
+                            width: '100%',
+                            borderRadius: '4px',
+                            overflow: 'hidden'
+                        }}
+                    />
+                    <p style={{ fontSize: '0.8em', color: '#888', marginTop: '5px' }}>
+                        *Dữ liệu realtime từ DNSE MQTT
+                    </p>
                 </div>
 
-                <div
-                    ref={chartContainerRef}
-                    style={{
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '4px',
-                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                {/* --- CỘT PHẢI: ĐẶT LỆNH (Chiếm 25% ~ 3 Cols) --- */}
+                <OrderForm
+                    symbol={SYMBOL_ID}
+                    currentPrice={lastPrice}
+                    balance={0}
+                    onSubmit={() => {
+
                     }}
                 />
 
-                <p style={{ fontSize: '0.85em', color: '#666', marginTop: '10px' }}>
-                    *Lưu ý: Nếu không thấy biểu đồ hiện ra, hãy cài Extension
-                    <a href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf" target="_blank" rel="noreferrer" style={{ marginLeft: '4px' }}>
-                        Allow CORS
-                    </a> và bật nó lên (do trình duyệt chặn API khác domain).
-                </p>
             </div>
-
         </div>
     );
 };
