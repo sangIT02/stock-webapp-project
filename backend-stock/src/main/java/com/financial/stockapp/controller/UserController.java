@@ -2,8 +2,13 @@ package com.financial.stockapp.controller;
 
 import com.financial.stockapp.dto.ApiResponse;
 import com.financial.stockapp.dto.request.RegisterRequestDTO;
+import com.financial.stockapp.dto.request.UserLoginRequest;
 import com.financial.stockapp.dto.request.VerifyOtpDto;
+import com.financial.stockapp.dto.response.LoginResponse;
+import com.financial.stockapp.dto.response.UserInfoResponse;
+import com.financial.stockapp.service.IUserService;
 import com.financial.stockapp.service.Impl.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("${api.prefix}/users")
 @CrossOrigin(origins = "http://localhost:5173")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private AuthService authService;
+    private final AuthService authService;
+    private final IUserService userService;
 
     @PostMapping("/sent-otp")
     public ApiResponse<String> sendOtp(@RequestParam String email) {
@@ -42,5 +48,11 @@ public class UserController {
                 .data("success")
                 .message("dang ki thanh cong")
                 .build();
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<LoginResponse> login(@RequestBody UserLoginRequest dto){
+        LoginResponse userInfoResponse = userService.login(dto);
+        return ApiResponse.success(userInfoResponse);
     }
 }

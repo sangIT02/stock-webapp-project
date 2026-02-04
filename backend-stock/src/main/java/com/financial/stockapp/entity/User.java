@@ -50,7 +50,9 @@ public class User extends BaseEntity{
 
     // Quan hệ 1-1 với Profile
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private UserProfile profile;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "auth_user_roles",
@@ -59,4 +61,13 @@ public class User extends BaseEntity{
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();
+
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude // 👈 Làm tương tự với Wallet
+    private Wallet wallet;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @ToString.Exclude // 👈 Làm tương tự với IdentityCard
+    private IdentityCard identityCard;
 }

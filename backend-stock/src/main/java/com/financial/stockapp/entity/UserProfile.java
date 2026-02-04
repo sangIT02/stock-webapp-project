@@ -25,9 +25,6 @@ public class UserProfile {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "identity_card", length = 20)
-    private String identityCard;
-
     private LocalDate dob;
 
     @Column(columnDefinition = "TEXT")
