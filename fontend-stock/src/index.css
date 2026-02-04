@@ -10,3 +10,24 @@
   padding: 0;
   box-sizing: border-box;
 }
+/* Hiệu ứng hover cho menu item */
+.hover-bg-gray:hover {
+  background-color: #343a40; /* Màu xám bootstrap bg-dark-subtle */
+  cursor: pointer;
+}
+
+.hover-bg-gray:hover span, 
+.hover-bg-gray:hover i {
+  color: white !important; /* Sáng chữ lên khi hover */
+}
+
+/* Hiệu ứng xoay mũi tên */
+.transition-icon {
+  transition: transform 0.3s ease;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
