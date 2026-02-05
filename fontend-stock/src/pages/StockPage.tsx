@@ -10,17 +10,24 @@ import {
     type CandlestickData
 } from 'lightweight-charts';
 import { OrderForm } from '../components/OrderForm';
+import { StockTicker } from '../components/StockInfo';
 
 // --- CẤU HÌNH ---
 const BROKER_HOST = 'datafeed-lts-krx.dnse.com.vn';
 const BROKER_PORT = 443;
+const RESOLUTION_MAP: Record<string, string> = {
+    '1m': '1',   // 1 phút
+    '5m': '5',   // 5 phút
+    '15m': '15', 
+    '30m': '30',
+    '1H': '1H',  // 1 giờ = 60 phút
+    '1D': '1D',  // 1 ngày
+    '1W': '1W',   // 1 tuần
+    '1M': 'M'   // 1 tuần
 
+};
 // Cấu hình mã và khung thời gian
-const SYMBOL_ID = 'VCB';
-const RESOLUTION = '1'; // 1D = 1 Ngày
 
-// Topic MQTT (Realtime)
-const TOPIC_OHLC = `plaintext/quotes/krx/mdds/v2/ohlc/stock/${RESOLUTION}/${SYMBOL_ID}`;
 
 // Base URL API (Lấy từ link bạn gửi)
 const API_BASE_URL = "https://api.dnse.com.vn/chart-api/v2/ohlcs/stock";
@@ -28,7 +35,13 @@ const API_BASE_URL = "https://api.dnse.com.vn/chart-api/v2/ohlcs/stock";
 const DNSEChart: React.FC = () => {
     const [status, setStatus] = useState<string>('Init...');
     const [lastPrice, setLastPrice] = useState<number | null>(null);
+    const [timeframe, setTimeframe] = useState('1D'); // State lưu khung thời gian đang chọn
+    const timeframes = ['1m', '5m', '15m', '30m', '1H', '1D', '1W','1M']; // Danh sách các mốc 
+    const [SYMBOL_ID,setSimbol] = useState<string>("VCB");
+    const [RESOLUTION,setResolution] = useState<string>('1'); // 1D = 1 Ngày
 
+    // Topic MQTT (Realtime)
+    const TOPIC_OHLC = `plaintext/quotes/krx/mdds/v2/ohlc/stock/${RESOLUTION}/${SYMBOL_ID}`;
     // 👇 Token (Giữ nguyên Token của bạn)
     const [credentials] = useState({
         investorId: '1002207962',
@@ -46,7 +59,7 @@ const DNSEChart: React.FC = () => {
 
         const chart = createChart(chartContainerRef.current, {
             layout: { background: { type: ColorType.Solid, color: '#121212' }, textColor: '#D9D9D9' },
-            width: 1000, //chartContainerRef.current.clientWidth,
+            width: 1100, //chartContainerRef.current.clientWidth,
             height: 600,
             timeScale: {
                 timeVisible: true,
@@ -85,7 +98,6 @@ const DNSEChart: React.FC = () => {
     // --- 2. LOAD HISTORY TỪ API BẠN GỬI ---
     const loadHistoryData = async (series: ISeriesApi<"Candlestick">) => {
         setStatus('Fetching History...');
-
         try {
             // Tự động tính thời gian (Lấy 1 năm gần nhất)
             const to = Math.floor(Date.now() / 1000) + 86400; // Cộng thêm 1 ngày cho chắc
@@ -191,23 +203,50 @@ const DNSEChart: React.FC = () => {
         } catch (error) { }
     };
 
-    useEffect(() => {
-        return () => { clientRef.current?.end(true); };
-    }, []);
+// --- EFFECT 2: QUẢN LÝ DỮ LIỆU (Thay thế đoạn logic load data cũ) ---
+useEffect(() => {
+    // 1. Nếu chưa có series nến thì không làm gì cả
+    if (!candleSeriesRef.current) return;
 
+    // 2. DỌN DẸP DỮ LIỆU CŨ
+    // Xóa trắng chart để người dùng biết đang tải mới
+    candleSeriesRef.current.setData([]); 
+    
+    // Ngắt kết nối MQTT cũ (để không bị nhận 2 luồng data cùng lúc)
+    if (clientRef.current) {
+        clientRef.current.end();
+        clientRef.current = null;
+    }
+
+    // 3. TẢI DỮ LIỆU MỚI
+    // Gọi hàm loadHistoryData (hàm này sẽ tự gọi connectMQTT sau khi tải xong)
+    loadHistoryData(candleSeriesRef.current);
+
+    // 4. CLEANUP (Khi component bị hủy hoặc đổi time khác)
+    return () => {
+        if (clientRef.current) {
+            clientRef.current.end(); // Ngắt kết nối ngay lập tức
+        }
+    };
+
+}, [RESOLUTION, SYMBOL_ID]); // <--- QUAN TRỌNG: Thêm biến này vào để code chạy lại khi đổi time
+
+    const handleClickTime = (tf: string) => {
+        setTimeframe(tf)
+        const apiValue = RESOLUTION_MAP[tf] || tf; 
+        setResolution(apiValue);
+    }
     return (
         <div style={{
             minHeight: '100vh',
             backgroundColor: '#121212', // Màu nền tối cho toàn trang
             color: '#fff',
             display: 'flex',            // Sử dụng Flexbox
-            flexDirection: 'column'
+            flexDirection: 'column',
         }}>
 
             {/* Header nhỏ hiển thị trạng thái */}
-            <div style={{ padding: '10px 20px', borderBottom: '1px solid #333' }}>
-                
-            </div>
+            <StockTicker />
 
             {/* CONTAINER CHÍNH: Chia 2 cột */}
             <div style={{
@@ -224,6 +263,35 @@ const DNSEChart: React.FC = () => {
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
+                    <div style={{
+                        display: 'flex',
+                        gap: '5px',
+                        marginBottom: '8px', // Cách biểu đồ 1 chút
+                        backgroundColor: '#1f1f1f', // Nền tối nhẹ cho thanh công cụ
+                        padding: '6px',
+                        borderRadius: '4px'
+                    }}>
+                        {timeframes.map((tf) => (
+                            <button
+                                key={tf}
+                                onClick={() => handleClickTime(tf)}
+                                style={{
+                                    background: timeframe === tf ? '#2962ff' : 'transparent', // Nền xanh nếu đang chọn
+                                    color: timeframe === tf ? '#fff' : '#888', // Chữ sáng nếu đang chọn
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    padding: '4px 12px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.85rem',
+                                    fontWeight: timeframe === tf ? 'bold' : 'normal',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {tf}
+                            </button>
+                        ))}
+                    </div>
+
                     <div
                         ref={chartContainerRef}
                         style={{

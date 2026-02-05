@@ -64,8 +64,9 @@ export const PriceTable = () => {
                 <tbody>
                     {[...Array(30)].map((_, index) => (
                         <tr key={index} className="hover-highlight">
-                            <td className="fw-bold text-info">HPG</td>
-
+                            <td className="fw-bold">
+                                <i className="bi bi-star me-1"></i>HPG
+                            </td>
                             <td className="text-success">28.00</td>
                             <td className="text-success">28.00</td>
                             <td className="text-success">28.00</td>

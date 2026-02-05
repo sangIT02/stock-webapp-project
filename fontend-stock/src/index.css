@@ -31,3 +31,14 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
+/* Ẩn nút tăng giảm trên Chrome, Safari, Edge, Opera */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Ẩn nút tăng giảm trên Firefox */
+.no-spinner {
+  -moz-appearance: textfield;
+}

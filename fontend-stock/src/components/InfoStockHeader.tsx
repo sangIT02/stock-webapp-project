@@ -33,6 +33,13 @@ export const InfoStockHeader = () => {
                 className='d-flex align-items-center border-bottom border-secondary'
                 style={{ marginTop: "5px", borderColor: '#333 !important' }}
             >
+                <div
+                    onClick={() => handleTabChange(TABS.PRICE, '/home/price')}
+                    className={`py-2 mx-3 fw-bold ${activeTab === TABS.PRICE ? 'text-warning border-bottom border-warning border-3' : 'text-secondary'}`}
+                    style={{ cursor: 'pointer', transition: '0.2s' }}
+                >
+                    Bảng giá
+                </div>
                 {/* 1. Tab Biểu đồ */}
                 <div
                     // 👇 GỌI HÀM KIỂU NÀY: Truyền Key và Route tương ứng
@@ -44,13 +51,7 @@ export const InfoStockHeader = () => {
                 </div>
 
                 {/* 2. Tab Bảng giá */}
-                <div
-                    onClick={() => handleTabChange(TABS.PRICE, '/home/price')}
-                    className={`py-2 mx-3 fw-bold ${activeTab === TABS.PRICE ? 'text-warning border-bottom border-warning border-3' : 'text-secondary'}`}
-                    style={{ cursor: 'pointer', transition: '0.2s' }}
-                >
-                    Bảng giá
-                </div>
+                
 
                 {/* 3. Tab Danh mục */}
                 <div
